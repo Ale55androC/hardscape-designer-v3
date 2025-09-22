@@ -26,7 +26,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
@@ -777,6 +781,16 @@ app.post('/webhook/lead-capture', async (req, res) => {
   res.json({ success: true });
 });
 
+// Error handling middleware
+app.use((error, req, res, next) => {
+  console.error('Server error:', error);
+  res.status(500).json({
+    error: 'Internal server error',
+    message: error.message,
+    stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+  });
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Image & Video Processor Server`);
@@ -786,6 +800,7 @@ app.listen(PORT, () => {
   console.log('  POST /process - Upload image for processing');
   console.log('  GET /status/:jobId - Check job status');
   console.log('  GET /result/:jobId - Get processing results');
+  console.log('\nStatic files being served from:', __dirname);
 });
 
 module.exports = app;
