@@ -1,0 +1,23 @@
+{
+  "name": "hardscape-designer",
+  "version": "2.0.1",
+  "description": "AI Hardscape Designer - Transform outdoor spaces",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "node-fetch": "^2.7.0",
+    "nodemailer": "^7.0.6",
+    "resend": "^6.1.0",
+    "uuid": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
