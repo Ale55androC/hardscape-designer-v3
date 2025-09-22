@@ -60,8 +60,8 @@ const upload = multer({
 class ImageEditor {
   constructor() {
     this.apiKey = GEMINI_API_KEY;
-    // Using Gemini 2.0 Flash Experimental with image generation capability
-    this.endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
+    // Using Gemini 1.5 Flash for image analysis (image generation blocked in some countries)
+    this.endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
   }
 
   async editImage(imageBase64, prompt) {
@@ -70,8 +70,15 @@ class ImageEditor {
     console.log('Input image base64 length:', imageBase64.length);
     console.log('Input image first 100 chars:', imageBase64.substring(0, 100));
 
-    // Enhanced prompt for better image generation
-    const enhancedPrompt = `${prompt}. Transform this outdoor space into a modern hardscape design with luxury pavers, elegant lighting, and beautiful landscaping. Generate a photorealistic image showing the transformation.`;
+    // Since image generation is geo-restricted, we'll get design analysis instead
+    const enhancedPrompt = `Analyze this outdoor space image and provide a detailed hardscape design plan. ${prompt}.
+
+    Please provide specific recommendations in JSON format with:
+    - design_elements: List of hardscape elements to add
+    - materials: Recommended materials and colors
+    - layout: Spatial arrangement suggestions
+    - estimated_cost: Rough cost range
+    - visual_impact: Description of the transformation`;
 
     const requestBody = {
       contents: [{
@@ -89,8 +96,7 @@ class ImageEditor {
         temperature: 0.9,
         topK: 40,
         topP: 0.95,
-        maxOutputTokens: 8192,
-        response_modalities: ["TEXT", "IMAGE"]
+        maxOutputTokens: 8192
       }
     };
 
