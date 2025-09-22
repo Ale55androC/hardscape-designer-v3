@@ -612,14 +612,42 @@ app.get('/', (req, res) => {
 // Serve static files from results directory
 app.use('/results', express.static(resultsDir));
 
-// Email configuration with Resend
-const resend = new Resend(process.env.RESEND_API_KEY || 're_MB73pTWk_G8cvGuMMFWifocUcKFjq8eau');
+// Polyfill for Headers if not available (for older Node versions)
+if (typeof Headers === 'undefined') {
+  global.Headers = class Headers {
+    constructor(init) {
+      this.headers = {};
+      if (init) {
+        Object.entries(init).forEach(([key, value]) => {
+          this.headers[key.toLowerCase()] = value;
+        });
+      }
+    }
+    set(name, value) {
+      this.headers[name.toLowerCase()] = value;
+    }
+    get(name) {
+      return this.headers[name.toLowerCase()];
+    }
+  };
+}
+
+// Email configuration with Resend - initialize lazily to avoid startup errors
+let resendInstance = null;
+const getResend = () => {
+  if (!resendInstance) {
+    const { Resend } = require('resend');
+    resendInstance = new Resend(process.env.RESEND_API_KEY || 're_MB73pTWk_G8cvGuMMFWifocUcKFjq8eau');
+  }
+  return resendInstance;
+};
 
 // Send email endpoint
 app.post('/send-email', async (req, res) => {
   const { name, email, phone, designImage, type } = req.body;
 
   try {
+    const resend = getResend();
     // HTML email template
     const htmlContent = `
       <!DOCTYPE html>
